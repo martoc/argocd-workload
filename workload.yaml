@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: http-deployment
+  labels:
+    app: http-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: http-service
+  template:
+    metadata:
+      labels:
+        app: http-service
+        role: http-workload
+    spec:
+      containers:
+      - name: http-container
+        image: hashicorp/http-echo:0.2.3
+        args:
+          - "-text=Service"
+        ports:
+        - containerPort: 5678
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: http-service
+  labels:
+    app: http-service
+spec:
+  selector:
+    app: http-service
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 5678
+  type: LoadBalancer
